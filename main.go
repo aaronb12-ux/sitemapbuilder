@@ -6,9 +6,11 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strings"
+
 	"aaron.com/sitemapbuilder/bfs"
-	"github.com/aaronb12-ux/linkparserhtml"
+	//"strings"
+	//"aaron.com/sitemapbuilder/bfs"
+	//"github.com/aaronb12-ux/linkparserhtml"
 )
 
 func getHTML(url string) []byte {
@@ -31,26 +33,18 @@ func getHTML(url string) []byte {
 	return body 
 }
 
-func BFS() []string {
-
-	
-}
 
 func main() {
 
 	var url string
 
-	flag.StringVar(&url, "url", "https://www.calhoun.io/", "the url to extract links from")
+	flag.StringVar(&url, "url", "https://example.com", "the url to extract links from")
 	
 	flag.Parse()
 
-	ans := BFS()
+	ans := bfs.Bfs(url)
 
-	var body []byte = getHTML(url)
-
-	links := linkparserhtml.GetLinks(strings.NewReader(string(body)))
-
-	
+	fmt.Println(ans)
 
 
 	
