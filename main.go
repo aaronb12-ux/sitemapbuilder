@@ -29,7 +29,6 @@ func getHTML(url string) []byte {
 	return body 
 }
 
-
 func main() {
 
 	var url string

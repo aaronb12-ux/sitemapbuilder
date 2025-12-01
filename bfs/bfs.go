@@ -64,7 +64,6 @@ func GetHTML(url string, baseurl string) []byte {
 
 	body, err := io.ReadAll(response.Body)
 
-
 	if err != nil {
 		log.Fatal("error reading response body: ", err)
 	}
@@ -75,7 +74,7 @@ func GetHTML(url string, baseurl string) []byte {
 
 func validLink(link string) bool {
 	//checks if a link is in the domain
-	if strings.HasPrefix(link, "./") {
+	if strings.HasPrefix(link, "./") || strings.HasPrefix(link, "/") {
 		return true
 	}
 	return false
@@ -103,11 +102,12 @@ func Bfs(baseurl string) []string { //run a bfs from the root (base domain url)
 
 		//now get the valid links only...
 		for _ , link := range links {
-			
+
 			if !seenUrls[link.Href] && validLink(link.Href) {
 				ans = append(ans, link.Href)
 				seenUrls[link.Href] = true
 				queue.Enqueue(link.Href)
+
 			} 
 		}
 	}
