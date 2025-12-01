@@ -6,11 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
-
 	"aaron.com/sitemapbuilder/bfs"
-	//"strings"
-	//"aaron.com/sitemapbuilder/bfs"
-	//"github.com/aaronb12-ux/linkparserhtml"
 )
 
 func getHTML(url string) []byte {
@@ -38,15 +34,12 @@ func main() {
 
 	var url string
 
-	flag.StringVar(&url, "url", "https://example.com", "the url to extract links from")
+	flag.StringVar(&url, "url", "https://includedavis.com/", "the url to extract links from")
 	
 	flag.Parse()
 
 	ans := bfs.Bfs(url)
 
-	fmt.Println(ans)
+	fmt.Println("All the valid links are", ans)
 
-
-	
- 
 }

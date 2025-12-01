@@ -7,6 +7,7 @@ import (
 	"io"
 	"github.com/aaronb12-ux/linkparserhtml"
 	"log"
+	"net/url"
 )
 
 type Queue struct {
@@ -23,6 +24,7 @@ func (q *Queue) Dequeue() string {
 		return "empty"
 	}
 	front := q.urls[0]
+	q.urls = q.urls[1:]
 	return front
 }
 
@@ -31,11 +33,28 @@ func CreateQueue() *Queue {
 	return queue
 }
 
+func makeAbsolute(currentPath string, baseUrl string ) string {
 
-func GetHTML(url string) []byte {
+	base, err := url.Parse(baseUrl)
 
+	if err != nil {
+		return ""
+	}
 
-	response, err := http.Get(url)
+	ref, err := url.Parse(currentPath)
+	if err != nil {
+		return ""
+	}
+
+	return base.ResolveReference(ref).String()
+
+}
+
+func GetHTML(url string, baseurl string) []byte {
+
+	validUrl := makeAbsolute(url, baseurl)
+
+	response, err := http.Get(validUrl)
 
 	if err != nil {
 		log.Fatal("error fetching URL: ", err)
@@ -50,55 +69,48 @@ func GetHTML(url string) []byte {
 		log.Fatal("error reading response body: ", err)
 	}
 
-
 	return body 
 }
 
+
 func validLink(link string) bool {
 	//checks if a link is in the domain
-	if link[0] == '/' {
+	if strings.HasPrefix(link, "./") {
 		return true
 	}
 	return false
 }
 
-func Bfs(url string) []string { //run a bfs from the root (base domain url)
+func Bfs(baseurl string) []string { //run a bfs from the root (base domain url)
 
 	var ans []string 
 
 	//create queue and initialize it
 	queue := CreateQueue() 
-	queue.Enqueue(url)
-
+	queue.Enqueue(baseurl)
 
 	//create seenSet and initilize it
 	seenUrls := make(map[string]bool)
-	seenUrls[url] = true
-
+	seenUrls[baseurl] = true
 
 	for len(queue.urls) > 0 {
 
 		currentURL := queue.Dequeue()
 
-		var body []byte = GetHTML(currentURL)
+		var body []byte = GetHTML(currentURL, baseurl)
 
 		links := linkparserhtml.GetLinks(strings.NewReader(string(body)))
 
-		fmt.Println(links)
-
 		//now get the valid links only...
 		for _ , link := range links {
+			
 			if !seenUrls[link.Href] && validLink(link.Href) {
 				ans = append(ans, link.Href)
 				seenUrls[link.Href] = true
 				queue.Enqueue(link.Href)
-			} else {
-				continue
-			}
+			} 
 		}
 	}
 	
 	return ans
 }
-
-
